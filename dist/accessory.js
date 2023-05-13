@@ -43,6 +43,7 @@ class WindmillThermostatAccessory {
         this.informationService = new hap.Service.AccessoryInformation()
             .setCharacteristic(this.Characteristic.Manufacturer, 'The Air Lab, Inc.')
             .setCharacteristic(this.Characteristic.Model, 'The Windmill AC');
+        this.displayUnits = this.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
         // create handlers for required characteristics
         this.thermostatService.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
             .onGet(this.handleCurrentHeatingCoolingStateGet.bind(this));
@@ -151,15 +152,14 @@ class WindmillThermostatAccessory {
      */
     handleTemperatureDisplayUnitsGet() {
         this.log('Triggered GET TemperatureDisplayUnits');
-        // set this to a valid value for TemperatureDisplayUnits
-        const currentValue = this.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
-        return currentValue;
+        return this.displayUnits;
     }
     /**
      * Handle requests to set the "Temperature Display Units" characteristic
      */
     handleTemperatureDisplayUnitsSet(value) {
         this.log('Triggered SET TemperatureDisplayUnits:', value);
+        this.displayUnits = parseInt(value.toString(), 10);
     }
     /*
        * This method is called directly after creation of this instance.

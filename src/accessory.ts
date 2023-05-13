@@ -60,6 +60,8 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   private readonly thermostatService: Service;
   private readonly informationService: Service;
 
+  private displayUnits: number;
+
 
   constructor(log: Logging, config: AccessoryConfig, api: API) {
     this.log = log;
@@ -81,6 +83,8 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     this.informationService = new hap.Service.AccessoryInformation()
       .setCharacteristic(this.Characteristic.Manufacturer, 'The Air Lab, Inc.')
       .setCharacteristic(this.Characteristic.Model, 'The Windmill AC');
+
+    this.displayUnits = this.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
 
     // create handlers for required characteristics
     this.thermostatService.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
@@ -218,17 +222,15 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   handleTemperatureDisplayUnitsGet() {
     this.log('Triggered GET TemperatureDisplayUnits');
 
-    // set this to a valid value for TemperatureDisplayUnits
-    const currentValue = this.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
-
-    return currentValue;
+    return this.displayUnits;
   }
 
   /**
    * Handle requests to set the "Temperature Display Units" characteristic
    */
-  handleTemperatureDisplayUnitsSet(value) {
+  handleTemperatureDisplayUnitsSet(value: CharacteristicValue) {
     this.log('Triggered SET TemperatureDisplayUnits:', value);
+    this.displayUnits = parseInt(value.toString(), 10);
   }
 
 
