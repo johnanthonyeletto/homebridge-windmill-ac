@@ -12,6 +12,12 @@ export enum Pin {
     FAN = 'V4',
 }
 
+enum ModeInt {
+    FAN = 0,
+    COOL = 1,
+    ECO = 2,
+}
+
 export enum Mode {
     FAN = 'Fan',
     COOL = 'Cool',
@@ -108,7 +114,17 @@ export class WindmillService {
 
   public async setMode(value: Mode): Promise<void> {
     this.log(`Setting mode to ${value}`);
-    await this.setPinValue(Pin.MODE, value);
+    switch (value) {
+      case Mode.FAN:
+        await this.setPinValue(Pin.MODE, ModeInt.FAN.toString());
+        break;
+      case Mode.COOL:
+        await this.setPinValue(Pin.MODE, ModeInt.COOL.toString());
+        break;
+      case Mode.ECO:
+        await this.setPinValue(Pin.MODE, ModeInt.ECO.toString());
+        break;
+    }
   }
 
   public async setFanSpeed(value: FanSpeed): Promise<void> {

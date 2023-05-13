@@ -15,6 +15,12 @@ var Pin;
     Pin["MODE"] = "V3";
     Pin["FAN"] = "V4";
 })(Pin = exports.Pin || (exports.Pin = {}));
+var ModeInt;
+(function (ModeInt) {
+    ModeInt[ModeInt["FAN"] = 0] = "FAN";
+    ModeInt[ModeInt["COOL"] = 1] = "COOL";
+    ModeInt[ModeInt["ECO"] = 2] = "ECO";
+})(ModeInt || (ModeInt = {}));
 var Mode;
 (function (Mode) {
     Mode["FAN"] = "Fan";
@@ -94,7 +100,17 @@ class WindmillService {
     }
     async setMode(value) {
         this.log(`Setting mode to ${value}`);
-        await this.setPinValue(Pin.MODE, value);
+        switch (value) {
+            case Mode.FAN:
+                await this.setPinValue(Pin.MODE, ModeInt.FAN.toString());
+                break;
+            case Mode.COOL:
+                await this.setPinValue(Pin.MODE, ModeInt.COOL.toString());
+                break;
+            case Mode.ECO:
+                await this.setPinValue(Pin.MODE, ModeInt.ECO.toString());
+                break;
+        }
     }
     async setFanSpeed(value) {
         this.log(`Setting fan speed to ${value}`);
