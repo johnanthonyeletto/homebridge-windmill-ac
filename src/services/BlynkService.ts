@@ -1,8 +1,6 @@
 import fetch from 'node-fetch';
 import { URL } from 'url';
 
-
-
 export interface BlynkServiceConfig {
     serverAddress: string;
     token: string;
