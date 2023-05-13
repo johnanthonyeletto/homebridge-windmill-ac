@@ -59,6 +59,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
   private readonly thermostatService: Service;
   private readonly informationService: Service;
+  private readonly fanService: Service;
 
   private displayUnits: number;
 
@@ -83,10 +84,11 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     this.informationService = new hap.Service.AccessoryInformation()
       .setCharacteristic(this.Characteristic.Manufacturer, 'The Air Lab, Inc.')
       .setCharacteristic(this.Characteristic.Model, 'The Windmill AC');
+    this.fanService = new hap.Service.Fanv2();
 
     this.displayUnits = this.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
 
-    // create handlers for required characteristics
+    // create handlers for thermostat characteristics
     this.thermostatService.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
       .onGet(this.handleCurrentHeatingCoolingStateGet.bind(this));
 
@@ -104,6 +106,10 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     this.thermostatService.getCharacteristic(this.Characteristic.TemperatureDisplayUnits)
       .onGet(this.handleTemperatureDisplayUnitsGet.bind(this))
       .onSet(this.handleTemperatureDisplayUnitsSet.bind(this));
+
+    this.fanService.getCharacteristic(this.Characteristic.Active)
+      .onGet(this.handleFanActiveGet.bind(this))
+      .onSet(this.handleFanActiveSet.bind(this));
   }
 
   /**
@@ -233,6 +239,27 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     this.displayUnits = parseInt(value.toString(), 10);
   }
 
+  async handleFanActiveGet() {
+    this.log('Triggered GET FanActive');
+
+    const currentPowerState = await this.windmill.getPower();
+
+    if(!currentPowerState) {
+      return this.Characteristic.Active.INACTIVE;
+    }
+
+    return this.Characteristic.Active.ACTIVE;
+  }
+
+  async handleFanActiveSet(value) {
+    this.log('Triggered SET FanActive:', value);
+
+    if(value === this.Characteristic.Active.INACTIVE) {
+      await this.windmill.setPower(false);
+    } else {
+      await this.windmill.setPower(true);
+    }
+  }
 
   /*
      * This method is called directly after creation of this instance.
@@ -242,6 +269,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     return [
       this.thermostatService,
       this.informationService,
+      this.fanService,
     ];
   }
 
