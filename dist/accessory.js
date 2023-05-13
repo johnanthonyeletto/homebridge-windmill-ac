@@ -30,7 +30,7 @@ class WindmillThermostatAccessory {
         this.log = log;
         this.config = config;
         this.api = api;
-        this.windmill = new WindmillService_1.WindmillService(this.config.token);
+        this.windmill = new WindmillService_1.WindmillService(this.config.token, this.log);
         this.Service = this.api.hap.Service;
         this.Characteristic = this.api.hap.Characteristic;
         // extract name from config
