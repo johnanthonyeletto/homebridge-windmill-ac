@@ -69,8 +69,6 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     this.config = config as WindmillThermostatAccessoryConfig;
     this.api = api;
 
-    this.log('Windmill AC Config:', JSON.stringify(config));
-
     this.windmill = new WindmillService(this.config.token, this.log);
 
     this.Characteristic = this.api.hap.Characteristic;
@@ -89,30 +87,30 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     // create handlers for thermostat characteristics
     this.thermostatService.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
-      .onGet(this.handleCurrentHeatingCoolingStateGet.bind(this));
+      .onGet(this.handleGetHeatingCoolingState.bind(this));
 
     this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState)
-      .onGet(this.handleTargetHeatingCoolingStateGet.bind(this))
-      .onSet(this.handleTargetHeatingCoolingStateSet.bind(this));
+      .onGet(this.handleGetTargetHeatingCoolingState.bind(this))
+      .onSet(this.handleSetTargetHeatingCoolingState.bind(this));
 
     this.thermostatService.getCharacteristic(this.Characteristic.CurrentTemperature)
-      .onGet(this.handleCurrentTemperatureGet.bind(this));
+      .onGet(this.handleGetCurrentTemperature.bind(this));
 
     this.thermostatService.getCharacteristic(this.Characteristic.TargetTemperature)
-      .onGet(this.handleTargetTemperatureGet.bind(this))
-      .onSet(this.handleTargetTemperatureSet.bind(this));
+      .onGet(this.handleGetTargetTemperature.bind(this))
+      .onSet(this.handleSetTargetTemperature.bind(this));
 
     this.thermostatService.getCharacteristic(this.Characteristic.TemperatureDisplayUnits)
-      .onGet(this.handleTemperatureDisplayUnitsGet.bind(this))
-      .onSet(this.handleTemperatureDisplayUnitsSet.bind(this));
+      .onGet(this.handleGetTemperatureDisplayUnits.bind(this))
+      .onSet(this.handleSetTemperatureDisplayUnits.bind(this));
 
     this.fanService.getCharacteristic(this.Characteristic.Active)
-      .onGet(this.handleFanActiveGet.bind(this))
-      .onSet(this.handleFanActiveSet.bind(this));
+      .onGet(this.handleGetFanActive.bind(this))
+      .onSet(this.handleSetFanActive.bind(this));
 
     this.fanService.getCharacteristic(this.Characteristic.RotationSpeed)
-      .onGet(this.handleFanRotationSpeedGet.bind(this))
-      .onSet(this.handleFanRotationSpeedSet.bind(this));
+      .onGet(this.handleGetFanRotationSpeed.bind(this))
+      .onSet(this.handleSetFanRotationSpeed.bind(this));
   }
 
   /**
@@ -131,7 +129,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Current Heating Cooling State" characteristic
    */
-  async handleCurrentHeatingCoolingStateGet() {
+  async handleGetHeatingCoolingState(): Promise<CharacteristicValue> {
     this.log('Triggered GET CurrentHeatingCoolingState');
 
     const [
@@ -160,16 +158,16 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Target Heating Cooling State" characteristic
    */
-  handleTargetHeatingCoolingStateGet() {
+  handleGetTargetHeatingCoolingState() {
     this.log('Triggered GET TargetHeatingCoolingState');
 
-    return this.handleCurrentHeatingCoolingStateGet();
+    return this.handleGetHeatingCoolingState();
   }
 
   /**
    * Handle requests to set the "Target Heating Cooling State" characteristic
    */
-  async handleTargetHeatingCoolingStateSet(value) {
+  async handleSetTargetHeatingCoolingState(value) {
     this.log('Triggered SET TargetHeatingCoolingState:', value);
 
     if(value === this.Characteristic.TargetHeatingCoolingState.OFF) {
@@ -198,7 +196,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Current Temperature" characteristic
    */
-  async handleCurrentTemperatureGet() {
+  async handleGetCurrentTemperature() {
     this.log('Triggered GET CurrentTemperature');
 
     const currentValue = await this.windmill.getCurrentTemperature();
@@ -209,7 +207,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Target Temperature" characteristic
    */
-  async handleTargetTemperatureGet() {
+  async handleGetTargetTemperature() {
     this.log('Triggered GET TargetTemperature');
 
     const currentValue = await this.windmill.getTargetTemperature();
@@ -220,7 +218,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to set the "Target Temperature" characteristic
    */
-  async handleTargetTemperatureSet(value: CharacteristicValue) {
+  async handleSetTargetTemperature(value: CharacteristicValue) {
     this.log('Triggered SET TargetTemperature:', value);
     const celsiusValue = celsiusToFahrenheit(parseFloat(value.toString()));
     return this.windmill.setTargetTemperature(celsiusValue);
@@ -229,7 +227,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Temperature Display Units" characteristic
    */
-  handleTemperatureDisplayUnitsGet() {
+  handleGetTemperatureDisplayUnits() {
     this.log('Triggered GET TemperatureDisplayUnits');
 
     return this.displayUnits;
@@ -238,12 +236,12 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to set the "Temperature Display Units" characteristic
    */
-  handleTemperatureDisplayUnitsSet(value: CharacteristicValue) {
+  handleSetTemperatureDisplayUnits(value: CharacteristicValue) {
     this.log('Triggered SET TemperatureDisplayUnits:', value);
     this.displayUnits = parseInt(value.toString(), 10);
   }
 
-  async handleFanActiveGet() {
+  async handleGetFanActive() {
     this.log('Triggered GET FanActive');
 
     const currentPowerState = await this.windmill.getFanSpeed();
@@ -252,7 +250,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     return currentPowerState !== FanSpeed.AUTO;
   }
 
-  async handleFanActiveSet(value) {
+  async handleSetFanActive(value) {
     this.log('Triggered SET FanActive:', value);
 
     if(value === this.Characteristic.Active.INACTIVE) {
@@ -260,7 +258,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     }
   }
 
-  async handleFanRotationSpeedGet() {
+  async handleGetFanRotationSpeed() {
     this.log('Triggered GET FanRotationSpeed');
     const fanSpeed = await this.windmill.getFanSpeed();
 
@@ -276,7 +274,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     }
   }
 
-  async handleFanRotationSpeedSet(value) {
+  async handleSetFanRotationSpeed(value) {
     this.log('Triggered SET FanRotationSpeed:', value);
 
     if (value <= 33) {
