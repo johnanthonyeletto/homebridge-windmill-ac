@@ -62,6 +62,7 @@ class WindmillThermostatAccessory {
         this.fanService.getCharacteristic(this.Characteristic.Active)
             .onGet(this.handleFanActiveGet.bind(this))
             .onSet(this.handleFanActiveSet.bind(this));
+        this.thermostatService.addLinkedService(this.fanService);
     }
     /**
      * This method is optional to implement. It is called when HomeKit ask to identify the accessory.
