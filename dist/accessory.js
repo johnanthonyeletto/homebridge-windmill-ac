@@ -28,39 +28,38 @@ const temperature_1 = require("./helpers/temperature");
  */
 let hap;
 class WindmillThermostatAccessory {
-    constructor(log, config, api) {
+    constructor(log, config) {
         this.log = log;
         this.config = config;
-        this.api = api;
         this.windmill = new WindmillService_1.WindmillService(this.config.token, this.log);
-        this.Characteristic = this.api.hap.Characteristic;
         // extract name from config
         this.name = config.name;
         // create a new Thermostat service
         this.thermostatService = new hap.Service.Thermostat();
         this.informationService = new hap.Service.AccessoryInformation()
-            .setCharacteristic(this.Characteristic.Manufacturer, 'The Air Lab, Inc.')
-            .setCharacteristic(this.Characteristic.Model, 'The Windmill AC');
+            .setCharacteristic(hap.Characteristic.Manufacturer, 'The Air Lab, Inc.')
+            .setCharacteristic(hap.Characteristic.Model, 'The Windmill AC');
         this.fanService = new hap.Service.Fanv2();
-        this.displayUnits = this.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
-        // create handlers for thermostat characteristics
-        this.thermostatService.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
+        this.displayUnits = hap.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
+        // Create handlers for thermostat characteristics
+        this.thermostatService.getCharacteristic(hap.Characteristic.CurrentHeatingCoolingState)
             .onGet(this.handleGetHeatingCoolingState.bind(this));
-        this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState)
+        this.thermostatService.getCharacteristic(hap.Characteristic.TargetHeatingCoolingState)
             .onGet(this.handleGetTargetHeatingCoolingState.bind(this))
             .onSet(this.handleSetTargetHeatingCoolingState.bind(this));
-        this.thermostatService.getCharacteristic(this.Characteristic.CurrentTemperature)
+        this.thermostatService.getCharacteristic(hap.Characteristic.CurrentTemperature)
             .onGet(this.handleGetCurrentTemperature.bind(this));
-        this.thermostatService.getCharacteristic(this.Characteristic.TargetTemperature)
+        this.thermostatService.getCharacteristic(hap.Characteristic.TargetTemperature)
             .onGet(this.handleGetTargetTemperature.bind(this))
             .onSet(this.handleSetTargetTemperature.bind(this));
-        this.thermostatService.getCharacteristic(this.Characteristic.TemperatureDisplayUnits)
+        this.thermostatService.getCharacteristic(hap.Characteristic.TemperatureDisplayUnits)
             .onGet(this.handleGetTemperatureDisplayUnits.bind(this))
             .onSet(this.handleSetTemperatureDisplayUnits.bind(this));
-        this.fanService.getCharacteristic(this.Characteristic.Active)
+        // Create handlers for fan characteristics
+        this.fanService.getCharacteristic(hap.Characteristic.Active)
             .onGet(this.handleGetFanActive.bind(this))
             .onSet(this.handleSetFanActive.bind(this));
-        this.fanService.getCharacteristic(this.Characteristic.RotationSpeed)
+        this.fanService.getCharacteristic(hap.Characteristic.RotationSpeed)
             .onGet(this.handleGetFanRotationSpeed.bind(this))
             .onSet(this.handleSetFanRotationSpeed.bind(this));
     }
@@ -85,16 +84,16 @@ class WindmillThermostatAccessory {
             this.windmill.getMode(),
         ]);
         if (!currentPowerState) {
-            return this.Characteristic.CurrentHeatingCoolingState.OFF;
+            return hap.Characteristic.CurrentHeatingCoolingState.OFF;
         }
         switch (currentMode) {
             case WindmillService_1.Mode.COOL:
-                return this.Characteristic.CurrentHeatingCoolingState.COOL;
+                return hap.Characteristic.CurrentHeatingCoolingState.COOL;
             case WindmillService_1.Mode.FAN:
-                return this.Characteristic.CurrentHeatingCoolingState.HEAT;
+                return hap.Characteristic.CurrentHeatingCoolingState.HEAT;
         }
         // Fallback to OFF
-        return this.Characteristic.CurrentHeatingCoolingState.OFF;
+        return hap.Characteristic.CurrentHeatingCoolingState.OFF;
     }
     /**
      * Handle requests to get the current value of the "Target Heating Cooling State" characteristic
@@ -108,26 +107,29 @@ class WindmillThermostatAccessory {
      */
     async handleSetTargetHeatingCoolingState(value) {
         this.log('Triggered SET TargetHeatingCoolingState:', value);
-        if (value === this.Characteristic.TargetHeatingCoolingState.OFF) {
+        if (value === hap.Characteristic.TargetHeatingCoolingState.OFF) {
             await this.windmill.setPower(false);
             return;
         }
         else {
+            // If the mode is not off, we need to turn on the AC
             await this.windmill.setPower(true);
         }
         switch (value) {
-            case this.Characteristic.TargetHeatingCoolingState.COOL:
+            case hap.Characteristic.TargetHeatingCoolingState.COOL:
                 await this.windmill.setMode(WindmillService_1.Mode.COOL);
                 break;
-            case this.Characteristic.TargetHeatingCoolingState.HEAT:
+            case hap.Characteristic.TargetHeatingCoolingState.HEAT:
                 await this.windmill.setMode(WindmillService_1.Mode.FAN);
                 break;
-            case this.Characteristic.TargetHeatingCoolingState.AUTO:
+            case hap.Characteristic.TargetHeatingCoolingState.AUTO:
                 await this.windmill.setMode(WindmillService_1.Mode.ECO);
                 break;
         }
+        // Default to AUTO fan speed when changing modes
         await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.AUTO);
-        await this.fanService.updateCharacteristic(this.Characteristic.Active, false);
+        // Update the fan state to match the mode
+        await this.fanService.updateCharacteristic(hap.Characteristic.Active, false);
     }
     /**
      * Handle requests to get the current value of the "Current Temperature" characteristic
@@ -170,12 +172,13 @@ class WindmillThermostatAccessory {
     async handleGetFanActive() {
         this.log('Triggered GET FanActive');
         const currentPowerState = await this.windmill.getFanSpeed();
-        // If the fan is in AUTO mode, it is not active
+        // If the fan is in AUTO mode, it is displayed as "off"
         return currentPowerState !== WindmillService_1.FanSpeed.AUTO;
     }
     async handleSetFanActive(value) {
         this.log('Triggered SET FanActive:', value);
-        if (value === this.Characteristic.Active.INACTIVE) {
+        // If the fan is turned off, set the fan speed to AUTO
+        if (value === hap.Characteristic.Active.INACTIVE) {
             await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.AUTO);
         }
     }
@@ -195,20 +198,21 @@ class WindmillThermostatAccessory {
     }
     async handleSetFanRotationSpeed(value) {
         this.log('Triggered SET FanRotationSpeed:', value);
-        if (value <= 33) {
+        const intValue = parseInt(value.toString(), 10);
+        if (intValue <= 33) {
             await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.LOW);
         }
-        else if (value <= 66) {
+        else if (intValue <= 66) {
             await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.MEDIUM);
         }
-        else if (value <= 100) {
+        else if (intValue <= 100) {
             await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.HIGH);
         }
     }
     /*
-       * This method is called directly after creation of this instance.
-       * It should return all services which should be added to the accessory.
-       */
+     * This method is called directly after creation of this instance.
+     * It should return all services which should be added to the accessory.
+     */
     getServices() {
         return [
             this.thermostatService,
