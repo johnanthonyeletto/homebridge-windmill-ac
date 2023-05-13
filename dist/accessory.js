@@ -130,7 +130,7 @@ class WindmillThermostatAccessory {
                 break;
         }
         await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.AUTO);
-        await this.updateFanStateForThermostat();
+        await this.fanService.updateCharacteristic(this.Characteristic.Active, false);
     }
     /**
      * Handle requests to get the current value of the "Current Temperature" characteristic
@@ -172,74 +172,40 @@ class WindmillThermostatAccessory {
     }
     async handleFanActiveGet() {
         this.log('Triggered GET FanActive');
-        const currentPowerState = await this.windmill.getPower();
-        if (!currentPowerState) {
-            return this.Characteristic.Active.INACTIVE;
-        }
-        return this.Characteristic.Active.ACTIVE;
+        const currentPowerState = await this.windmill.getFanSpeed();
+        // If the fan is in AUTO mode, it is not active
+        return currentPowerState !== WindmillService_1.FanSpeed.AUTO;
     }
     async handleFanActiveSet(value) {
         this.log('Triggered SET FanActive:', value);
         if (value === this.Characteristic.Active.INACTIVE) {
-            await this.windmill.setPower(false);
+            await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.AUTO);
         }
-        else {
-            await this.windmill.setPower(true);
-        }
-        await this.updateThermostatStateForFan();
     }
     async handleFanRotationSpeedGet() {
         this.log('Triggered GET FanRotationSpeed');
         const fanSpeed = await this.windmill.getFanSpeed();
         switch (fanSpeed) {
             case WindmillService_1.FanSpeed.AUTO:
-                return 25;
+                return 0;
             case WindmillService_1.FanSpeed.LOW:
-                return 50;
+                return 33;
             case WindmillService_1.FanSpeed.MEDIUM:
-                return 75;
+                return 66;
             case WindmillService_1.FanSpeed.HIGH:
                 return 100;
         }
     }
     async handleFanRotationSpeedSet(value) {
         this.log('Triggered SET FanRotationSpeed:', value);
-        if (value <= 25) {
-            await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.AUTO);
-        }
-        else if (value <= 50) {
+        if (value <= 33) {
             await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.LOW);
         }
-        else if (value <= 75) {
+        else if (value <= 66) {
             await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.MEDIUM);
         }
         else if (value <= 100) {
             await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.HIGH);
-        }
-        await this.updateThermostatStateForFan();
-    }
-    async updateThermostatStateForFan() {
-        const currentFanState = await this.fanService.getCharacteristic(this.Characteristic.Active).value;
-        const currentThermostatState = await this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState).value;
-        const isFanActive = currentFanState === this.Characteristic.Active.ACTIVE;
-        const isThermostatActive = currentThermostatState !== this.Characteristic.TargetHeatingCoolingState.OFF;
-        if (isFanActive && !isThermostatActive) {
-            await this.thermostatService.updateCharacteristic(this.Characteristic.TargetHeatingCoolingState, this.Characteristic.TargetHeatingCoolingState.AUTO);
-        }
-        else if (!isFanActive && isThermostatActive) {
-            await this.thermostatService.updateCharacteristic(this.Characteristic.TargetHeatingCoolingState, this.Characteristic.TargetHeatingCoolingState.OFF);
-        }
-    }
-    async updateFanStateForThermostat() {
-        const currentFanState = await this.fanService.getCharacteristic(this.Characteristic.Active).value;
-        const currentThermostatState = await this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState).value;
-        const isFanActive = currentFanState === this.Characteristic.Active.ACTIVE;
-        const isThermostatActive = currentThermostatState !== this.Characteristic.TargetHeatingCoolingState.OFF;
-        if (isThermostatActive && !isFanActive) {
-            await this.fanService.updateCharacteristic(this.Characteristic.RotationSpeed, 25);
-        }
-        else if (!isThermostatActive && isFanActive) {
-            await this.fanService.updateCharacteristic(this.Characteristic.Active, this.Characteristic.Active.INACTIVE);
         }
     }
     /*
