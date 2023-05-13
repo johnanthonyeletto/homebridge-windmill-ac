@@ -266,6 +266,8 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     } else {
       await this.windmill.setPower(true);
     }
+
+    await this.updateThermostatStateForFan();
   }
 
   async handleFanRotationSpeedGet() {
@@ -289,16 +291,32 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     if(value <= 25) {
       await this.windmill.setFanSpeed(FanSpeed.AUTO);
-      return;
     } else if (value <= 50) {
       await this.windmill.setFanSpeed(FanSpeed.LOW);
-      return;
     } else if (value <= 75) {
       await this.windmill.setFanSpeed(FanSpeed.MEDIUM);
-      return;
     } else if (value <= 100) {
       await this.windmill.setFanSpeed(FanSpeed.HIGH);
+    }
+
+    await this.updateThermostatStateForFan();
+  }
+
+  private async updateThermostatStateForFan() {
+    const currentFanState = await this.fanService.getCharacteristic(this.Characteristic.Active).value;
+    const currentThermostatState = await this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState).value;
+
+    if(currentFanState === this.Characteristic.Active.INACTIVE) {
+      await this.thermostatService.updateCharacteristic(
+        this.Characteristic.TargetHeatingCoolingState,
+        this.Characteristic.TargetHeatingCoolingState.OFF,
+      );
       return;
+    } else if(currentThermostatState === this.Characteristic.TargetHeatingCoolingState.OFF) {
+      await this.thermostatService.updateCharacteristic(
+        this.Characteristic.TargetHeatingCoolingState,
+        this.Characteristic.TargetHeatingCoolingState.AUTO,
+      );
     }
   }
 
