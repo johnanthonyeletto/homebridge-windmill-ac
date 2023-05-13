@@ -2,10 +2,6 @@ import {
   AccessoryConfig,
   AccessoryPlugin,
   API,
-  CharacteristicEventTypes,
-  CharacteristicGetCallback,
-  CharacteristicSetCallback,
-  CharacteristicValue,
   HAP,
   Logging,
   Service,
@@ -47,42 +43,143 @@ let hap: HAP;
 class WindmillThermostatAccessory implements AccessoryPlugin {
 
   private readonly log: Logging;
+  private readonly config: AccessoryConfig;
+  private readonly api: API;
   private readonly name: string;
-  private switchOn = false;
 
-  private readonly switchService: Service;
+  private readonly Service: typeof hap.Service;
+  private readonly Characteristic: typeof hap.Characteristic;
+
+  private readonly service: Service;
   private readonly informationService: Service;
+
 
   constructor(log: Logging, config: AccessoryConfig, api: API) {
     this.log = log;
+    this.config = config;
+    this.api = api;
+
+    this.Service = this.api.hap.Service;
+    this.Characteristic = this.api.hap.Characteristic;
+
+    // extract name from config
     this.name = config.name;
 
-    this.switchService = new hap.Service.Switch(this.name);
-    this.switchService.getCharacteristic(hap.Characteristic.On)
-      .on(CharacteristicEventTypes.GET, (callback: CharacteristicGetCallback) => {
-        log.info('Current state of the switch was returned: ' + (this.switchOn? 'ON': 'OFF'));
-        callback(undefined, this.switchOn);
-      })
-      .on(CharacteristicEventTypes.SET, (value: CharacteristicValue, callback: CharacteristicSetCallback) => {
-        this.switchOn = value as boolean;
-        log.info('Switch state was set to: ' + (this.switchOn? 'ON': 'OFF'));
-        callback();
-      });
-
+    // create a new Thermostat service
+    this.service = new hap.Service.Thermostat();
     this.informationService = new hap.Service.AccessoryInformation()
-      .setCharacteristic(hap.Characteristic.Manufacturer, 'The Air Lab, Inc.')
-      .setCharacteristic(hap.Characteristic.Model, 'The Windmill AC');
+      .setCharacteristic(this.Characteristic.Manufacturer, 'The Air Lab, Inc.')
+      .setCharacteristic(this.Characteristic.Model, 'The Windmill AC');
 
-    log.info('Switch finished initializing!');
+    // create handlers for required characteristics
+    this.service.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
+      .onGet(this.handleCurrentHeatingCoolingStateGet.bind(this));
+
+    this.service.getCharacteristic(this.Characteristic.TargetHeatingCoolingState)
+      .onGet(this.handleTargetHeatingCoolingStateGet.bind(this))
+      .onSet(this.handleTargetHeatingCoolingStateSet.bind(this));
+
+    this.service.getCharacteristic(this.Characteristic.CurrentTemperature)
+      .onGet(this.handleCurrentTemperatureGet.bind(this));
+
+    this.service.getCharacteristic(this.Characteristic.TargetTemperature)
+      .onGet(this.handleTargetTemperatureGet.bind(this))
+      .onSet(this.handleTargetTemperatureSet.bind(this));
+
+    this.service.getCharacteristic(this.Characteristic.TemperatureDisplayUnits)
+      .onGet(this.handleTemperatureDisplayUnitsGet.bind(this))
+      .onSet(this.handleTemperatureDisplayUnitsSet.bind(this));
   }
 
-  /*
-     * This method is optional to implement. It is called when HomeKit ask to identify the accessory.
-     * Typical this only ever happens at the pairing process.
-     */
+  /**
+   * This method is optional to implement. It is called when HomeKit ask to identify the accessory.
+   * Typical this only ever happens at the pairing process.
+   */
   identify(): void {
     this.log('Identify!');
   }
+
+  /**
+   * Handle requests to get the current value of the "Current Heating Cooling State" characteristic
+   */
+  handleCurrentHeatingCoolingStateGet() {
+    this.log.debug('Triggered GET CurrentHeatingCoolingState');
+
+    // set this to a valid value for CurrentHeatingCoolingState
+    const currentValue = this.Characteristic.CurrentHeatingCoolingState.OFF;
+
+    return currentValue;
+  }
+
+  /**
+   * Handle requests to get the current value of the "Target Heating Cooling State" characteristic
+   */
+  handleTargetHeatingCoolingStateGet() {
+    this.log.debug('Triggered GET TargetHeatingCoolingState');
+
+    // set this to a valid value for TargetHeatingCoolingState
+    const currentValue = this.Characteristic.TargetHeatingCoolingState.OFF;
+
+    return currentValue;
+  }
+
+  /**
+   * Handle requests to set the "Target Heating Cooling State" characteristic
+   */
+  handleTargetHeatingCoolingStateSet(value) {
+    this.log.debug('Triggered SET TargetHeatingCoolingState:', value);
+  }
+
+  /**
+   * Handle requests to get the current value of the "Current Temperature" characteristic
+   */
+  handleCurrentTemperatureGet() {
+    this.log.debug('Triggered GET CurrentTemperature');
+
+    // set this to a valid value for CurrentTemperature
+    const currentValue = -270;
+
+    return currentValue;
+  }
+
+  /**
+   * Handle requests to get the current value of the "Target Temperature" characteristic
+   */
+  handleTargetTemperatureGet() {
+    this.log.debug('Triggered GET TargetTemperature');
+
+    // set this to a valid value for TargetTemperature
+    const currentValue = 10;
+
+    return currentValue;
+  }
+
+  /**
+   * Handle requests to set the "Target Temperature" characteristic
+   */
+  handleTargetTemperatureSet(value) {
+    this.log.debug('Triggered SET TargetTemperature:', value);
+  }
+
+  /**
+   * Handle requests to get the current value of the "Temperature Display Units" characteristic
+   */
+  handleTemperatureDisplayUnitsGet() {
+    this.log.debug('Triggered GET TemperatureDisplayUnits');
+
+    // set this to a valid value for TemperatureDisplayUnits
+    const currentValue = this.Characteristic.TemperatureDisplayUnits.CELSIUS;
+
+    return currentValue;
+  }
+
+  /**
+   * Handle requests to set the "Temperature Display Units" characteristic
+   */
+  handleTemperatureDisplayUnitsSet(value) {
+    this.log.debug('Triggered SET TemperatureDisplayUnits:', value);
+  }
+
 
   /*
      * This method is called directly after creation of this instance.
@@ -90,8 +187,8 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
      */
   getServices(): Service[] {
     return [
+      this.service,
       this.informationService,
-      this.switchService,
     ];
   }
 
