@@ -10,6 +10,11 @@
         "type": "string",
         "required": true,
         "default": "Windmill AC"
+      },
+      "token": {
+        "title": "Token",
+        "type": "string",
+        "required": true
       }
     }
   }
