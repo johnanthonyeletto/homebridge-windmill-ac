@@ -39,22 +39,22 @@ class WindmillThermostatAccessory {
         // extract name from config
         this.name = config.name;
         // create a new Thermostat service
-        this.service = new hap.Service.Thermostat();
+        this.thermostatService = new hap.Service.Thermostat();
         this.informationService = new hap.Service.AccessoryInformation()
             .setCharacteristic(this.Characteristic.Manufacturer, 'The Air Lab, Inc.')
             .setCharacteristic(this.Characteristic.Model, 'The Windmill AC');
         // create handlers for required characteristics
-        this.service.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
+        this.thermostatService.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
             .onGet(this.handleCurrentHeatingCoolingStateGet.bind(this));
-        this.service.getCharacteristic(this.Characteristic.TargetHeatingCoolingState)
+        this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState)
             .onGet(this.handleTargetHeatingCoolingStateGet.bind(this))
             .onSet(this.handleTargetHeatingCoolingStateSet.bind(this));
-        this.service.getCharacteristic(this.Characteristic.CurrentTemperature)
+        this.thermostatService.getCharacteristic(this.Characteristic.CurrentTemperature)
             .onGet(this.handleCurrentTemperatureGet.bind(this));
-        this.service.getCharacteristic(this.Characteristic.TargetTemperature)
+        this.thermostatService.getCharacteristic(this.Characteristic.TargetTemperature)
             .onGet(this.handleTargetTemperatureGet.bind(this))
             .onSet(this.handleTargetTemperatureSet.bind(this));
-        this.service.getCharacteristic(this.Characteristic.TemperatureDisplayUnits)
+        this.thermostatService.getCharacteristic(this.Characteristic.TemperatureDisplayUnits)
             .onGet(this.handleTemperatureDisplayUnitsGet.bind(this))
             .onSet(this.handleTemperatureDisplayUnitsSet.bind(this));
     }
@@ -162,7 +162,7 @@ class WindmillThermostatAccessory {
        */
     getServices() {
         return [
-            this.service,
+            this.thermostatService,
             this.informationService,
         ];
     }
