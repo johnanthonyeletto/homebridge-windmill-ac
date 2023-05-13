@@ -10,7 +10,7 @@ import {
   Logging,
   Service,
 } from 'homebridge';
-import { PLATFORM_NAME } from './settings';
+import { ACCESSORY_NAME } from './settings';
 
 /*
    * IMPORTANT NOTICE
@@ -41,7 +41,7 @@ let hap: HAP;
    */
   export = (api: API) => {
     hap = api.hap;
-    api.registerAccessory(PLATFORM_NAME, WindmillThermostatAccessory);
+    api.registerAccessory(ACCESSORY_NAME, WindmillThermostatAccessory);
   };
 
 class WindmillThermostatAccessory implements AccessoryPlugin {
@@ -70,8 +70,8 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
       });
 
     this.informationService = new hap.Service.AccessoryInformation()
-      .setCharacteristic(hap.Characteristic.Manufacturer, 'Custom Manufacturer')
-      .setCharacteristic(hap.Characteristic.Model, 'Custom Model');
+      .setCharacteristic(hap.Characteristic.Manufacturer, 'The Air Lab, Inc.')
+      .setCharacteristic(hap.Characteristic.Model, 'The Windmill AC');
 
     log.info('Switch finished initializing!');
   }

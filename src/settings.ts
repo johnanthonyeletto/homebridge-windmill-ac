@@ -1,7 +1,7 @@
 /**
- * This is the name of the platform that users will use to register the plugin in the Homebridge config.json
+ * This is the name of the ACCESSORY that users will use to register the plugin in the Homebridge config.json
  */
-export const PLATFORM_NAME = 'HomebridgeWindmillAC';
+export const ACCESSORY_NAME = 'HomebridgeWindmillAC';
 
 /**
  * This must match the name of your plugin as defined the package.json
