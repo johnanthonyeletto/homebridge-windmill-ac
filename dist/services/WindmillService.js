@@ -1,11 +1,7 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WindmillService = exports.FanSpeed = exports.Mode = exports.Pin = void 0;
-const node_fetch_1 = __importDefault(require("node-fetch"));
-const url_1 = require("url");
+const BlynkService_1 = require("./BlynkService");
 const BASE_URL = 'https://dashboard.windmillair.com';
 var Pin;
 (function (Pin) {
@@ -27,6 +23,13 @@ var Mode;
     Mode["COOL"] = "Cool";
     Mode["ECO"] = "Eco";
 })(Mode = exports.Mode || (exports.Mode = {}));
+var FanSpeedInt;
+(function (FanSpeedInt) {
+    FanSpeedInt[FanSpeedInt["AUTO"] = 0] = "AUTO";
+    FanSpeedInt[FanSpeedInt["LOW"] = 1] = "LOW";
+    FanSpeedInt[FanSpeedInt["MEDIUM"] = 2] = "MEDIUM";
+    FanSpeedInt[FanSpeedInt["HIGH"] = 3] = "HIGH";
+})(FanSpeedInt || (FanSpeedInt = {}));
 var FanSpeed;
 (function (FanSpeed) {
     FanSpeed["AUTO"] = "Auto";
@@ -34,36 +37,10 @@ var FanSpeed;
     FanSpeed["MEDIUM"] = "Medium";
     FanSpeed["HIGH"] = "High";
 })(FanSpeed = exports.FanSpeed || (exports.FanSpeed = {}));
-class WindmillService {
+class WindmillService extends BlynkService_1.BlynkService {
     constructor(token, log) {
+        super({ serverAddress: BASE_URL, token });
         this.log = log;
-        this.token = token;
-    }
-    async getPinValue(pin) {
-        this.log(`Getting pin value for ${pin}`);
-        const url = new url_1.URL('/external/api/get', BASE_URL);
-        url.searchParams.append('token', this.token);
-        url.searchParams.append(pin, '');
-        this.log(`Fetching ${url.toString()}`);
-        const response = await (0, node_fetch_1.default)(url.toString());
-        if (!response.ok) {
-            this.log(`Failed to get pin value for ${pin}`, response.statusText);
-            throw new Error(`Failed to get pin value for ${pin}`);
-        }
-        const text = await response.text();
-        return text;
-    }
-    async setPinValue(pin, value) {
-        this.log(`Setting pin value for ${pin} to ${value}`);
-        const url = new url_1.URL('/external/api/update', BASE_URL);
-        url.searchParams.append('token', this.token);
-        url.searchParams.append(pin, value);
-        this.log(`Fetching ${url.toString()}`);
-        const response = await (0, node_fetch_1.default)(url.toString());
-        if (!response.ok) {
-            this.log(`Failed to set pin value for ${pin}`, response.statusText);
-            throw new Error(`Failed to set pin value for ${pin}`);
-        }
     }
     async getPower() {
         this.log('Getting power');
@@ -114,7 +91,20 @@ class WindmillService {
     }
     async setFanSpeed(value) {
         this.log(`Setting fan speed to ${value}`);
-        await this.setPinValue(Pin.FAN, value);
+        switch (value) {
+            case FanSpeed.AUTO:
+                await this.setPinValue(Pin.FAN, FanSpeedInt.AUTO.toString());
+                break;
+            case FanSpeed.LOW:
+                await this.setPinValue(Pin.FAN, FanSpeedInt.LOW.toString());
+                break;
+            case FanSpeed.MEDIUM:
+                await this.setPinValue(Pin.FAN, FanSpeedInt.MEDIUM.toString());
+                break;
+            case FanSpeed.HIGH:
+                await this.setPinValue(Pin.FAN, FanSpeedInt.HIGH.toString());
+                break;
+        }
     }
 }
 exports.WindmillService = WindmillService;

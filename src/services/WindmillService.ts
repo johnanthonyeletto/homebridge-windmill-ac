@@ -1,6 +1,5 @@
 import { Logging } from 'homebridge';
-import fetch from 'node-fetch';
-import { URL } from 'url';
+import { BlynkService } from './BlynkService';
 
 const BASE_URL = 'https://dashboard.windmillair.com';
 
@@ -24,6 +23,13 @@ export enum Mode {
     ECO = 'Eco',
 }
 
+enum FanSpeedInt {
+    AUTO = 0,
+    LOW = 1,
+    MEDIUM = 2,
+    HIGH = 3,
+}
+
 export enum FanSpeed {
     AUTO = 'Auto',
     LOW = 'Low',
@@ -31,45 +37,10 @@ export enum FanSpeed {
     HIGH = 'High',
 }
 
-export class WindmillService {
-  private readonly token: string;
+export class WindmillService extends BlynkService {
 
   constructor(token: string, private readonly log: Logging) {
-    this.token = token;
-  }
-
-  public async getPinValue(pin: Pin): Promise<string> {
-    this.log(`Getting pin value for ${pin}`);
-    const url = new URL('/external/api/get', BASE_URL);
-    url.searchParams.append('token', this.token);
-    url.searchParams.append(pin, '');
-
-    this.log(`Fetching ${url.toString()}`);
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      this.log(`Failed to get pin value for ${pin}`, response.statusText);
-      throw new Error(`Failed to get pin value for ${pin}`);
-    }
-
-    const text = await response.text();
-
-    return text;
-  }
-
-  public async setPinValue(pin: Pin, value: string): Promise<void> {
-    this.log(`Setting pin value for ${pin} to ${value}`);
-    const url = new URL('/external/api/update', BASE_URL);
-    url.searchParams.append('token', this.token);
-    url.searchParams.append(pin, value);
-
-    this.log(`Fetching ${url.toString()}`);
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      this.log(`Failed to set pin value for ${pin}`, response.statusText);
-      throw new Error(`Failed to set pin value for ${pin}`);
-    }
+    super({ serverAddress: BASE_URL, token });
   }
 
   public async getPower(): Promise<boolean> {
@@ -129,6 +100,19 @@ export class WindmillService {
 
   public async setFanSpeed(value: FanSpeed): Promise<void> {
     this.log(`Setting fan speed to ${value}`);
-    await this.setPinValue(Pin.FAN, value);
+    switch (value) {
+      case FanSpeed.AUTO:
+        await this.setPinValue(Pin.FAN, FanSpeedInt.AUTO.toString());
+        break;
+      case FanSpeed.LOW:
+        await this.setPinValue(Pin.FAN, FanSpeedInt.LOW.toString());
+        break;
+      case FanSpeed.MEDIUM:
+        await this.setPinValue(Pin.FAN, FanSpeedInt.MEDIUM.toString());
+        break;
+      case FanSpeed.HIGH:
+        await this.setPinValue(Pin.FAN, FanSpeedInt.HIGH.toString());
+        break;
+    }
   }
 }

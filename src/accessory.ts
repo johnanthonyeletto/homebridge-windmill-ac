@@ -9,7 +9,7 @@ import {
 } from 'homebridge';
 import { ACCESSORY_NAME } from './settings';
 import { WindmillThermostatAccessoryConfig } from './types';
-import { Mode, WindmillService } from './WindmillService';
+import { FanSpeed, Mode, WindmillService } from './services/WindmillService';
 import { sleep } from './helpers/sleep';
 import { celsiusToFahrenheit, fahrenheitToCelsius } from './helpers/temperature';
 
@@ -160,20 +160,25 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     this.log('Triggered SET TargetHeatingCoolingState:', value);
 
     if(value === this.Characteristic.TargetHeatingCoolingState.OFF) {
-      return await this.windmill.setPower(false);
+      await this.windmill.setPower(false);
+      return;
     } else {
       await this.windmill.setPower(true);
     }
 
     switch(value) {
       case this.Characteristic.TargetHeatingCoolingState.COOL:
-        return await this.windmill.setMode(Mode.COOL);
+        await this.windmill.setMode(Mode.COOL);
+        break;
       case this.Characteristic.TargetHeatingCoolingState.HEAT:
-        return await this.windmill.setMode(Mode.FAN);
+        await this.windmill.setMode(Mode.FAN);
+        break;
       case this.Characteristic.TargetHeatingCoolingState.AUTO:
-        return await this.windmill.setMode(Mode.ECO);
+        await this.windmill.setMode(Mode.ECO);
+        break;
     }
 
+    await this.windmill.setFanSpeed(FanSpeed.AUTO);
   }
 
   /**

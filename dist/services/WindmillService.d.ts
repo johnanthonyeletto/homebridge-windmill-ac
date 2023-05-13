@@ -1,4 +1,5 @@
 import { Logging } from 'homebridge';
+import { BlynkService } from './BlynkService';
 export declare enum Pin {
     POWER = "V0",
     CURRENT_TEMP = "V1",
@@ -17,12 +18,9 @@ export declare enum FanSpeed {
     MEDIUM = "Medium",
     HIGH = "High"
 }
-export declare class WindmillService {
+export declare class WindmillService extends BlynkService {
     private readonly log;
-    private readonly token;
     constructor(token: string, log: Logging);
-    getPinValue(pin: Pin): Promise<string>;
-    setPinValue(pin: Pin, value: string): Promise<void>;
     getPower(): Promise<boolean>;
     getCurrentTemperature(): Promise<number>;
     getTargetTemperature(): Promise<number>;

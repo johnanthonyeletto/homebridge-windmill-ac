@@ -1,6 +1,6 @@
 "use strict";
 const settings_1 = require("./settings");
-const WindmillService_1 = require("./WindmillService");
+const WindmillService_1 = require("./services/WindmillService");
 const sleep_1 = require("./helpers/sleep");
 const temperature_1 = require("./helpers/temperature");
 /*
@@ -103,19 +103,24 @@ class WindmillThermostatAccessory {
     async handleTargetHeatingCoolingStateSet(value) {
         this.log('Triggered SET TargetHeatingCoolingState:', value);
         if (value === this.Characteristic.TargetHeatingCoolingState.OFF) {
-            return await this.windmill.setPower(false);
+            await this.windmill.setPower(false);
+            return;
         }
         else {
             await this.windmill.setPower(true);
         }
         switch (value) {
             case this.Characteristic.TargetHeatingCoolingState.COOL:
-                return await this.windmill.setMode(WindmillService_1.Mode.COOL);
+                await this.windmill.setMode(WindmillService_1.Mode.COOL);
+                break;
             case this.Characteristic.TargetHeatingCoolingState.HEAT:
-                return await this.windmill.setMode(WindmillService_1.Mode.FAN);
+                await this.windmill.setMode(WindmillService_1.Mode.FAN);
+                break;
             case this.Characteristic.TargetHeatingCoolingState.AUTO:
-                return await this.windmill.setMode(WindmillService_1.Mode.ECO);
+                await this.windmill.setMode(WindmillService_1.Mode.ECO);
+                break;
         }
+        await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.AUTO);
     }
     /**
      * Handle requests to get the current value of the "Current Temperature" characteristic
