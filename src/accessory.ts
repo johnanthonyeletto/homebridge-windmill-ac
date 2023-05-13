@@ -52,9 +52,9 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   private readonly log: Logging;
   private readonly config: WindmillThermostatAccessoryConfig;
   private readonly api: API;
-  private readonly name: string;
 
-  private readonly Service: typeof hap.Service;
+  public readonly name: string;
+
   private readonly Characteristic: typeof hap.Characteristic;
 
   private readonly thermostatService: Service;
@@ -73,7 +73,6 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     this.windmill = new WindmillService(this.config.token, this.log);
 
-    this.Service = this.api.hap.Service;
     this.Characteristic = this.api.hap.Characteristic;
 
     // extract name from config
@@ -196,6 +195,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     }
 
     await this.windmill.setFanSpeed(FanSpeed.AUTO);
+    await this.updateFanStateForThermostat();
   }
 
   /**
@@ -306,16 +306,38 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     const currentFanState = await this.fanService.getCharacteristic(this.Characteristic.Active).value;
     const currentThermostatState = await this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState).value;
 
-    if(currentFanState === this.Characteristic.Active.INACTIVE) {
+    const isFanActive = currentFanState === this.Characteristic.Active.ACTIVE;
+    const isThermostatActive = currentThermostatState !== this.Characteristic.TargetHeatingCoolingState.OFF;
+
+    if(isFanActive && !isThermostatActive) {
+      await this.thermostatService.updateCharacteristic(
+        this.Characteristic.TargetHeatingCoolingState,
+        this.Characteristic.TargetHeatingCoolingState.AUTO,
+      );
+    } else if (!isFanActive && isThermostatActive) {
       await this.thermostatService.updateCharacteristic(
         this.Characteristic.TargetHeatingCoolingState,
         this.Characteristic.TargetHeatingCoolingState.OFF,
       );
-      return;
-    } else if(currentThermostatState === this.Characteristic.TargetHeatingCoolingState.OFF) {
-      await this.thermostatService.updateCharacteristic(
-        this.Characteristic.TargetHeatingCoolingState,
-        this.Characteristic.TargetHeatingCoolingState.AUTO,
+    }
+  }
+
+  private async updateFanStateForThermostat() {
+    const currentFanState = await this.fanService.getCharacteristic(this.Characteristic.Active).value;
+    const currentThermostatState = await this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState).value;
+
+    const isFanActive = currentFanState === this.Characteristic.Active.ACTIVE;
+    const isThermostatActive = currentThermostatState !== this.Characteristic.TargetHeatingCoolingState.OFF;
+
+    if(isThermostatActive && !isFanActive) {
+      await this.fanService.updateCharacteristic(
+        this.Characteristic.RotationSpeed,
+        25,
+      );
+    } else if (!isThermostatActive && isFanActive) {
+      await this.fanService.updateCharacteristic(
+        this.Characteristic.Active,
+        this.Characteristic.Active.INACTIVE,
       );
     }
   }

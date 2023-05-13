@@ -34,7 +34,6 @@ class WindmillThermostatAccessory {
         this.api = api;
         this.log('Windmill AC Config:', JSON.stringify(config));
         this.windmill = new WindmillService_1.WindmillService(this.config.token, this.log);
-        this.Service = this.api.hap.Service;
         this.Characteristic = this.api.hap.Characteristic;
         // extract name from config
         this.name = config.name;
@@ -131,6 +130,7 @@ class WindmillThermostatAccessory {
                 break;
         }
         await this.windmill.setFanSpeed(WindmillService_1.FanSpeed.AUTO);
+        await this.updateFanStateForThermostat();
     }
     /**
      * Handle requests to get the current value of the "Current Temperature" characteristic
@@ -221,12 +221,25 @@ class WindmillThermostatAccessory {
     async updateThermostatStateForFan() {
         const currentFanState = await this.fanService.getCharacteristic(this.Characteristic.Active).value;
         const currentThermostatState = await this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState).value;
-        if (currentFanState === this.Characteristic.Active.INACTIVE) {
-            await this.thermostatService.updateCharacteristic(this.Characteristic.TargetHeatingCoolingState, this.Characteristic.TargetHeatingCoolingState.OFF);
-            return;
-        }
-        else if (currentThermostatState === this.Characteristic.TargetHeatingCoolingState.OFF) {
+        const isFanActive = currentFanState === this.Characteristic.Active.ACTIVE;
+        const isThermostatActive = currentThermostatState !== this.Characteristic.TargetHeatingCoolingState.OFF;
+        if (isFanActive && !isThermostatActive) {
             await this.thermostatService.updateCharacteristic(this.Characteristic.TargetHeatingCoolingState, this.Characteristic.TargetHeatingCoolingState.AUTO);
+        }
+        else if (!isFanActive && isThermostatActive) {
+            await this.thermostatService.updateCharacteristic(this.Characteristic.TargetHeatingCoolingState, this.Characteristic.TargetHeatingCoolingState.OFF);
+        }
+    }
+    async updateFanStateForThermostat() {
+        const currentFanState = await this.fanService.getCharacteristic(this.Characteristic.Active).value;
+        const currentThermostatState = await this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState).value;
+        const isFanActive = currentFanState === this.Characteristic.Active.ACTIVE;
+        const isThermostatActive = currentThermostatState !== this.Characteristic.TargetHeatingCoolingState.OFF;
+        if (isThermostatActive && !isFanActive) {
+            await this.fanService.updateCharacteristic(this.Characteristic.RotationSpeed, 25);
+        }
+        else if (!isThermostatActive && isFanActive) {
+            await this.fanService.updateCharacteristic(this.Characteristic.Active, this.Characteristic.Active.INACTIVE);
         }
     }
     /*
