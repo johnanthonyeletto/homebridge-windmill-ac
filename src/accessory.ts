@@ -7,6 +7,8 @@ import {
   Service,
 } from 'homebridge';
 import { ACCESSORY_NAME } from './settings';
+import { WindmillThermostatAccessoryConfig } from './types';
+import { WindmillService } from './WindmillService';
 
 /*
  * IMPORTANT NOTICE
@@ -42,9 +44,10 @@ export = (api: API) => {
 };
 
 class WindmillThermostatAccessory implements AccessoryPlugin {
+  private readonly windmill: WindmillService;
 
   private readonly log: Logging;
-  private readonly config: AccessoryConfig;
+  private readonly config: WindmillThermostatAccessoryConfig;
   private readonly api: API;
   private readonly name: string;
 
@@ -57,8 +60,10 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
   constructor(log: Logging, config: AccessoryConfig, api: API) {
     this.log = log;
-    this.config = config;
+    this.config = config as WindmillThermostatAccessoryConfig;
     this.api = api;
+
+    this.windmill = new WindmillService(this.config.token);
 
     this.Service = this.api.hap.Service;
     this.Characteristic = this.api.hap.Characteristic;
@@ -134,11 +139,10 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Current Temperature" characteristic
    */
-  handleCurrentTemperatureGet() {
+  async handleCurrentTemperatureGet() {
     this.log('Triggered GET CurrentTemperature');
 
-    // set this to a valid value for CurrentTemperature
-    const currentValue = -270;
+    const currentValue = await this.windmill.getCurrentTemperature();
 
     return currentValue;
   }

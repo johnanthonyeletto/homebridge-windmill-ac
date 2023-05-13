@@ -1,5 +1,6 @@
 "use strict";
 const settings_1 = require("./settings");
+const WindmillService_1 = require("./WindmillService");
 /*
  * IMPORTANT NOTICE
  *
@@ -29,6 +30,7 @@ class WindmillThermostatAccessory {
         this.log = log;
         this.config = config;
         this.api = api;
+        this.windmill = new WindmillService_1.WindmillService(this.config.token);
         this.Service = this.api.hap.Service;
         this.Characteristic = this.api.hap.Characteristic;
         // extract name from config
@@ -87,10 +89,9 @@ class WindmillThermostatAccessory {
     /**
      * Handle requests to get the current value of the "Current Temperature" characteristic
      */
-    handleCurrentTemperatureGet() {
+    async handleCurrentTemperatureGet() {
         this.log('Triggered GET CurrentTemperature');
-        // set this to a valid value for CurrentTemperature
-        const currentValue = -270;
+        const currentValue = await this.windmill.getCurrentTemperature();
         return currentValue;
     }
     /**
