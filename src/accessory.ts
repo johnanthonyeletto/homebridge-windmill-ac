@@ -116,6 +116,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
       .onSet(this.handleFanRotationSpeedSet.bind(this));
 
     this.thermostatService.addLinkedService(this.fanService);
+    this.fanService.addLinkedService(this.thermostatService);
   }
 
   /**
@@ -286,24 +287,19 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   async handleFanRotationSpeedSet(value) {
     this.log('Triggered SET FanRotationSpeed:', value);
 
-    // Interpolate value to nearest fan speed
-    const fanSpeed = Math.round(value / 25) * 25;
-
-    switch(fanSpeed) {
-      case 25:
-        await this.windmill.setFanSpeed(FanSpeed.AUTO);
-        break;
-      case 50:
-        await this.windmill.setFanSpeed(FanSpeed.LOW);
-        break;
-      case 75:
-        await this.windmill.setFanSpeed(FanSpeed.MEDIUM);
-        break;
-      case 100:
-        await this.windmill.setFanSpeed(FanSpeed.HIGH);
-        break;
+    if(value <= 25) {
+      await this.windmill.setFanSpeed(FanSpeed.AUTO);
+      return;
+    } else if (value <= 50) {
+      await this.windmill.setFanSpeed(FanSpeed.LOW);
+      return;
+    } else if (value <= 75) {
+      await this.windmill.setFanSpeed(FanSpeed.MEDIUM);
+      return;
+    } else if (value <= 100) {
+      await this.windmill.setFanSpeed(FanSpeed.HIGH);
+      return;
     }
-
   }
 
   /*
