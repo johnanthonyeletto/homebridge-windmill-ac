@@ -103,7 +103,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
    * Handle requests to get the current value of the "Current Heating Cooling State" characteristic
    */
   handleCurrentHeatingCoolingStateGet() {
-    this.log.debug('Triggered GET CurrentHeatingCoolingState');
+    this.log('Triggered GET CurrentHeatingCoolingState');
 
     // set this to a valid value for CurrentHeatingCoolingState
     const currentValue = this.Characteristic.CurrentHeatingCoolingState.OFF;
@@ -115,7 +115,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
    * Handle requests to get the current value of the "Target Heating Cooling State" characteristic
    */
   handleTargetHeatingCoolingStateGet() {
-    this.log.debug('Triggered GET TargetHeatingCoolingState');
+    this.log('Triggered GET TargetHeatingCoolingState');
 
     // set this to a valid value for TargetHeatingCoolingState
     const currentValue = this.Characteristic.TargetHeatingCoolingState.OFF;
@@ -127,14 +127,14 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
    * Handle requests to set the "Target Heating Cooling State" characteristic
    */
   handleTargetHeatingCoolingStateSet(value) {
-    this.log.debug('Triggered SET TargetHeatingCoolingState:', value);
+    this.log('Triggered SET TargetHeatingCoolingState:', value);
   }
 
   /**
    * Handle requests to get the current value of the "Current Temperature" characteristic
    */
   handleCurrentTemperatureGet() {
-    this.log.debug('Triggered GET CurrentTemperature');
+    this.log('Triggered GET CurrentTemperature');
 
     // set this to a valid value for CurrentTemperature
     const currentValue = -270;
@@ -146,7 +146,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
    * Handle requests to get the current value of the "Target Temperature" characteristic
    */
   handleTargetTemperatureGet() {
-    this.log.debug('Triggered GET TargetTemperature');
+    this.log('Triggered GET TargetTemperature');
 
     // set this to a valid value for TargetTemperature
     const currentValue = 10;
@@ -158,14 +158,14 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
    * Handle requests to set the "Target Temperature" characteristic
    */
   handleTargetTemperatureSet(value) {
-    this.log.debug('Triggered SET TargetTemperature:', value);
+    this.log('Triggered SET TargetTemperature:', value);
   }
 
   /**
    * Handle requests to get the current value of the "Temperature Display Units" characteristic
    */
   handleTemperatureDisplayUnitsGet() {
-    this.log.debug('Triggered GET TemperatureDisplayUnits');
+    this.log('Triggered GET TemperatureDisplayUnits');
 
     // set this to a valid value for TemperatureDisplayUnits
     const currentValue = this.Characteristic.TemperatureDisplayUnits.CELSIUS;
@@ -177,7 +177,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
    * Handle requests to set the "Temperature Display Units" characteristic
    */
   handleTemperatureDisplayUnitsSet(value) {
-    this.log.debug('Triggered SET TemperatureDisplayUnits:', value);
+    this.log('Triggered SET TemperatureDisplayUnits:', value);
   }
 
 
