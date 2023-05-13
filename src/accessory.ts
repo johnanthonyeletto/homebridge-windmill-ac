@@ -160,18 +160,18 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     this.log('Triggered SET TargetHeatingCoolingState:', value);
 
     if(value === this.Characteristic.TargetHeatingCoolingState.OFF) {
-      return this.windmill.setPower(false);
+      return await this.windmill.setPower(false);
     } else {
       await this.windmill.setPower(true);
     }
 
     switch(value) {
       case this.Characteristic.TargetHeatingCoolingState.COOL:
-        return this.windmill.setMode(Mode.COOL);
+        return await this.windmill.setMode(Mode.COOL);
       case this.Characteristic.TargetHeatingCoolingState.HEAT:
-        return this.windmill.setMode(Mode.FAN);
+        return await this.windmill.setMode(Mode.FAN);
       case this.Characteristic.TargetHeatingCoolingState.AUTO:
-        return this.windmill.setMode(Mode.ECO);
+        return await this.windmill.setMode(Mode.ECO);
     }
 
   }
