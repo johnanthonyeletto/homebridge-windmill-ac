@@ -42,4 +42,10 @@ export class WindmillService {
     const value = await this.getPinValue(Pin.CURRENT_TEMP);
     return parseFloat(value);
   }
+
+  public async getTargetTemperature(): Promise<number> {
+    this.log('Getting target temperature');
+    const value = await this.getPinValue(Pin.TARGET_TEMP);
+    return parseFloat(value);
+  }
 }

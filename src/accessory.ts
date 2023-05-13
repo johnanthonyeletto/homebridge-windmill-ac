@@ -152,11 +152,10 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Target Temperature" characteristic
    */
-  handleTargetTemperatureGet() {
+  async handleTargetTemperatureGet() {
     this.log('Triggered GET TargetTemperature');
 
-    // set this to a valid value for TargetTemperature
-    const currentValue = 10;
+    const currentValue = await this.windmill.getTargetTemperature();
 
     return currentValue;
   }

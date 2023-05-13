@@ -11,5 +11,6 @@ export declare class WindmillService {
     constructor(token: string, log: Logging);
     getPinValue(pin: Pin): Promise<string>;
     getCurrentTemperature(): Promise<number>;
+    getTargetTemperature(): Promise<number>;
 }
 //# sourceMappingURL=WindmillService.d.ts.map
