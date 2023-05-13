@@ -1,6 +1,6 @@
 {
   "pluginAlias": "HomebridgeWindmillAC",
-  "pluginType": "platform",
+  "pluginType": "accessory",
   "singular": true,
   "schema": {
     "type": "object",
