@@ -2,6 +2,7 @@
 const settings_1 = require("./settings");
 const WindmillService_1 = require("./WindmillService");
 const sleep_1 = require("./helpers/sleep");
+const temperature_1 = require("./helpers/temperature");
 /*
  * IMPORTANT NOTICE
  *
@@ -122,7 +123,7 @@ class WindmillThermostatAccessory {
     async handleCurrentTemperatureGet() {
         this.log('Triggered GET CurrentTemperature');
         const currentValue = await this.windmill.getCurrentTemperature();
-        return currentValue;
+        return (0, temperature_1.fahrenheitToCelsius)(currentValue);
     }
     /**
      * Handle requests to get the current value of the "Target Temperature" characteristic
@@ -130,14 +131,15 @@ class WindmillThermostatAccessory {
     async handleTargetTemperatureGet() {
         this.log('Triggered GET TargetTemperature');
         const currentValue = await this.windmill.getTargetTemperature();
-        return currentValue;
+        return (0, temperature_1.fahrenheitToCelsius)(currentValue);
     }
     /**
      * Handle requests to set the "Target Temperature" characteristic
      */
     async handleTargetTemperatureSet(value) {
         this.log('Triggered SET TargetTemperature:', value);
-        return this.windmill.setTargetTemperature(parseFloat(value.toString()));
+        const celsiusValue = (0, temperature_1.celsiusToFahrenheit)(parseFloat(value.toString()));
+        return this.windmill.setTargetTemperature(celsiusValue);
     }
     /**
      * Handle requests to get the current value of the "Temperature Display Units" characteristic

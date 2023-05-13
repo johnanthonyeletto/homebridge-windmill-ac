@@ -11,6 +11,7 @@ import { ACCESSORY_NAME } from './settings';
 import { WindmillThermostatAccessoryConfig } from './types';
 import { Mode, WindmillService } from './WindmillService';
 import { sleep } from './helpers/sleep';
+import { celsiusToFahrenheit, fahrenheitToCelsius } from './helpers/temperature';
 
 /*
  * IMPORTANT NOTICE
@@ -183,7 +184,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     const currentValue = await this.windmill.getCurrentTemperature();
 
-    return currentValue;
+    return fahrenheitToCelsius(currentValue);
   }
 
   /**
@@ -194,7 +195,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     const currentValue = await this.windmill.getTargetTemperature();
 
-    return currentValue;
+    return fahrenheitToCelsius(currentValue);
   }
 
   /**
@@ -202,7 +203,8 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
    */
   async handleTargetTemperatureSet(value: CharacteristicValue) {
     this.log('Triggered SET TargetTemperature:', value);
-    return this.windmill.setTargetTemperature(parseFloat(value.toString()));
+    const celsiusValue = celsiusToFahrenheit(parseFloat(value.toString()));
+    return this.windmill.setTargetTemperature(celsiusValue);
   }
 
   /**
