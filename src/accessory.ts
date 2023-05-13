@@ -63,6 +63,8 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     this.config = config as WindmillThermostatAccessoryConfig;
     this.api = api;
 
+    this.log('Windmill AC Config:', JSON.stringify(config));
+
     this.windmill = new WindmillService(this.config.token, this.log);
 
     this.Service = this.api.hap.Service;
