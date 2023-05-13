@@ -1,6 +1,7 @@
 "use strict";
 const settings_1 = require("./settings");
 const WindmillService_1 = require("./WindmillService");
+const sleep_1 = require("./helpers/sleep");
 /*
  * IMPORTANT NOTICE
  *
@@ -60,17 +61,33 @@ class WindmillThermostatAccessory {
      * This method is optional to implement. It is called when HomeKit ask to identify the accessory.
      * Typical this only ever happens at the pairing process.
      */
-    identify() {
-        this.log('Identify!');
+    async identify() {
+        this.log('Identify requested!');
+        const currentPowerState = await this.windmill.getPower();
+        await this.windmill.setPower(!currentPowerState);
+        await (0, sleep_1.sleep)(3000);
+        await this.windmill.setPower(currentPowerState);
     }
     /**
      * Handle requests to get the current value of the "Current Heating Cooling State" characteristic
      */
-    handleCurrentHeatingCoolingStateGet() {
+    async handleCurrentHeatingCoolingStateGet() {
         this.log('Triggered GET CurrentHeatingCoolingState');
-        // set this to a valid value for CurrentHeatingCoolingState
-        const currentValue = this.Characteristic.CurrentHeatingCoolingState.OFF;
-        return currentValue;
+        const [currentPowerState, currentMode,] = await Promise.all([
+            this.windmill.getPower(),
+            this.windmill.getMode(),
+        ]);
+        if (!currentPowerState) {
+            return this.Characteristic.CurrentHeatingCoolingState.OFF;
+        }
+        switch (currentMode) {
+            case WindmillService_1.Mode.COOL:
+                return this.Characteristic.CurrentHeatingCoolingState.COOL;
+            case WindmillService_1.Mode.FAN:
+                return this.Characteristic.CurrentHeatingCoolingState.HEAT;
+        }
+        // Fallback to OFF
+        return this.Characteristic.CurrentHeatingCoolingState.OFF;
     }
     /**
      * Handle requests to get the current value of the "Target Heating Cooling State" characteristic
