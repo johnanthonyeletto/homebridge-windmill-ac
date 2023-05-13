@@ -2,6 +2,7 @@ import {
   AccessoryConfig,
   AccessoryPlugin,
   API,
+  CharacteristicValue,
   HAP,
   Logging,
   Service,
@@ -148,17 +149,30 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   handleTargetHeatingCoolingStateGet() {
     this.log('Triggered GET TargetHeatingCoolingState');
 
-    // set this to a valid value for TargetHeatingCoolingState
-    const currentValue = this.Characteristic.TargetHeatingCoolingState.OFF;
-
-    return currentValue;
+    return this.handleCurrentHeatingCoolingStateGet();
   }
 
   /**
    * Handle requests to set the "Target Heating Cooling State" characteristic
    */
-  handleTargetHeatingCoolingStateSet(value) {
+  async handleTargetHeatingCoolingStateSet(value) {
     this.log('Triggered SET TargetHeatingCoolingState:', value);
+
+    if(value === this.Characteristic.TargetHeatingCoolingState.OFF) {
+      return this.windmill.setPower(false);
+    } else {
+      await this.windmill.setPower(true);
+    }
+
+    switch(value) {
+      case this.Characteristic.TargetHeatingCoolingState.COOL:
+        return this.windmill.setMode(Mode.COOL);
+      case this.Characteristic.TargetHeatingCoolingState.HEAT:
+        return this.windmill.setMode(Mode.FAN);
+      case this.Characteristic.TargetHeatingCoolingState.AUTO:
+        return this.windmill.setMode(Mode.ECO);
+    }
+
   }
 
   /**
@@ -186,8 +200,9 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   /**
    * Handle requests to set the "Target Temperature" characteristic
    */
-  handleTargetTemperatureSet(value) {
+  async handleTargetTemperatureSet(value: CharacteristicValue) {
     this.log('Triggered SET TargetTemperature:', value);
+    return this.windmill.setTargetTemperature(parseFloat(value.toString()));
   }
 
   /**

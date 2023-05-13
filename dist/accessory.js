@@ -94,15 +94,27 @@ class WindmillThermostatAccessory {
      */
     handleTargetHeatingCoolingStateGet() {
         this.log('Triggered GET TargetHeatingCoolingState');
-        // set this to a valid value for TargetHeatingCoolingState
-        const currentValue = this.Characteristic.TargetHeatingCoolingState.OFF;
-        return currentValue;
+        return this.handleCurrentHeatingCoolingStateGet();
     }
     /**
      * Handle requests to set the "Target Heating Cooling State" characteristic
      */
-    handleTargetHeatingCoolingStateSet(value) {
+    async handleTargetHeatingCoolingStateSet(value) {
         this.log('Triggered SET TargetHeatingCoolingState:', value);
+        if (value === this.Characteristic.TargetHeatingCoolingState.OFF) {
+            return this.windmill.setPower(false);
+        }
+        else {
+            await this.windmill.setPower(true);
+        }
+        switch (value) {
+            case this.Characteristic.TargetHeatingCoolingState.COOL:
+                return this.windmill.setMode(WindmillService_1.Mode.COOL);
+            case this.Characteristic.TargetHeatingCoolingState.HEAT:
+                return this.windmill.setMode(WindmillService_1.Mode.FAN);
+            case this.Characteristic.TargetHeatingCoolingState.AUTO:
+                return this.windmill.setMode(WindmillService_1.Mode.ECO);
+        }
     }
     /**
      * Handle requests to get the current value of the "Current Temperature" characteristic
@@ -123,8 +135,9 @@ class WindmillThermostatAccessory {
     /**
      * Handle requests to set the "Target Temperature" characteristic
      */
-    handleTargetTemperatureSet(value) {
+    async handleTargetTemperatureSet(value) {
         this.log('Triggered SET TargetTemperature:', value);
+        return this.windmill.setTargetTemperature(parseFloat(value.toString()));
     }
     /**
      * Handle requests to get the current value of the "Temperature Display Units" characteristic
