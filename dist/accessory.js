@@ -43,8 +43,9 @@ class WindmillThermostatAccessory {
         this.informationService = new hap.Service.AccessoryInformation()
             .setCharacteristic(this.Characteristic.Manufacturer, 'The Air Lab, Inc.')
             .setCharacteristic(this.Characteristic.Model, 'The Windmill AC');
+        this.fanService = new hap.Service.Fanv2();
         this.displayUnits = this.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
-        // create handlers for required characteristics
+        // create handlers for thermostat characteristics
         this.thermostatService.getCharacteristic(this.Characteristic.CurrentHeatingCoolingState)
             .onGet(this.handleCurrentHeatingCoolingStateGet.bind(this));
         this.thermostatService.getCharacteristic(this.Characteristic.TargetHeatingCoolingState)
@@ -58,6 +59,9 @@ class WindmillThermostatAccessory {
         this.thermostatService.getCharacteristic(this.Characteristic.TemperatureDisplayUnits)
             .onGet(this.handleTemperatureDisplayUnitsGet.bind(this))
             .onSet(this.handleTemperatureDisplayUnitsSet.bind(this));
+        this.fanService.getCharacteristic(this.Characteristic.Active)
+            .onGet(this.handleFanActiveGet.bind(this))
+            .onSet(this.handleFanActiveSet.bind(this));
     }
     /**
      * This method is optional to implement. It is called when HomeKit ask to identify the accessory.
@@ -161,6 +165,23 @@ class WindmillThermostatAccessory {
         this.log('Triggered SET TemperatureDisplayUnits:', value);
         this.displayUnits = parseInt(value.toString(), 10);
     }
+    async handleFanActiveGet() {
+        this.log('Triggered GET FanActive');
+        const currentPowerState = await this.windmill.getPower();
+        if (!currentPowerState) {
+            return this.Characteristic.Active.INACTIVE;
+        }
+        return this.Characteristic.Active.ACTIVE;
+    }
+    async handleFanActiveSet(value) {
+        this.log('Triggered SET FanActive:', value);
+        if (value === this.Characteristic.Active.INACTIVE) {
+            await this.windmill.setPower(false);
+        }
+        else {
+            await this.windmill.setPower(true);
+        }
+    }
     /*
        * This method is called directly after creation of this instance.
        * It should return all services which should be added to the accessory.
@@ -169,6 +190,7 @@ class WindmillThermostatAccessory {
         return [
             this.thermostatService,
             this.informationService,
+            this.fanService,
         ];
     }
 }
