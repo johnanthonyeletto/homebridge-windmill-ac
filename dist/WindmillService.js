@@ -24,6 +24,7 @@ class WindmillService {
         const url = new url_1.URL('/external/api/get', BASE_URL);
         url.searchParams.append('token', this.token);
         url.searchParams.append(pin, '');
+        this.log(`Fetching ${url.toString()}`);
         const response = await (0, node_fetch_1.default)(url.toString());
         if (!response.ok) {
             this.log(`Failed to get pin value for ${pin}`, response.statusText);

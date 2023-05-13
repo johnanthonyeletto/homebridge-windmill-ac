@@ -24,6 +24,7 @@ export class WindmillService {
     url.searchParams.append('token', this.token);
     url.searchParams.append(pin, '');
 
+    this.log(`Fetching ${url.toString()}`);
     const response = await fetch(url.toString());
 
     if (!response.ok) {
