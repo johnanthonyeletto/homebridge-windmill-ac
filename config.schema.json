@@ -14,7 +14,8 @@
       "token": {
         "title": "Token",
         "type": "string",
-        "required": true
+        "required": true,
+        "description": "See Configuration section from README for help."
       }
     }
   }
