@@ -46,30 +46,35 @@ export class WindmillService extends BlynkService {
   public async getPower(): Promise<boolean> {
     this.log('Getting power');
     const value = await this.getPinValue(Pin.POWER);
+    this.log(`Power is ${value}`);
     return value === '1';
   }
 
   public async getCurrentTemperature(): Promise<number> {
     this.log('Getting current temperature');
     const value = await this.getPinValue(Pin.CURRENT_TEMP);
+    this.log(`Current temperature is ${value}`);
     return parseFloat(value);
   }
 
   public async getTargetTemperature(): Promise<number> {
     this.log('Getting target temperature');
     const value = await this.getPinValue(Pin.TARGET_TEMP);
+    this.log(`Target temperature is ${value}`);
     return parseFloat(value);
   }
 
   public async getMode(): Promise<Mode> {
     this.log('Getting mode');
     const value = await this.getPinValue(Pin.MODE);
+    this.log(`Mode is ${value}`);
     return value as Mode;
   }
 
   public async getFanSpeed(): Promise<FanSpeed> {
     this.log('Getting fan speed');
     const value = await this.getPinValue(Pin.FAN);
+    this.log(`Fan speed is ${value}`);
     return value as FanSpeed;
   }
 

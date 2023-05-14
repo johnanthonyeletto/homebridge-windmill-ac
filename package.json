@@ -2,7 +2,7 @@
   "private": false,
   "displayName": "Windmill AC",
   "name": "homebridge-windmill-ac",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Control your Windmill AC with HomeKit and Siri",
   "license": "Apache-2.0",
   "repository": {
