@@ -37,6 +37,8 @@ First, get your token from the Windmill dashboard.
 3. Navigate to the *Device Info* tab
 4. Click to copy your *AUTHTOKEN*
 
+![Screenshot for finding your token](docs/windmill-auth-token.png)
+
 ### Easiest Configuration
 I recommend using the [homebridge-config-ui-x plugin](https://github.com/homebridge/homebridge-config-ui-x) or [HOOBS](https://hoobs.com/) to configure the plugin.
 
