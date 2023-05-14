@@ -278,6 +278,11 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     const intValue = parseInt(value.toString(), 10);
 
+    // If value is 0, the fan speed will be set to AUTO by `handleSetFanActive`
+    if (intValue === 0) {
+      return;
+    }
+
     if (intValue <= 33) {
       await this.windmill.setFanSpeed(FanSpeed.LOW);
     } else if (intValue <= 66) {
