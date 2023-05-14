@@ -81,7 +81,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     // Create handlers for thermostat characteristics
     this.thermostatService.getCharacteristic(hap.Characteristic.CurrentHeatingCoolingState)
-      .onGet(this.handleGetHeatingCoolingState.bind(this));
+      .onGet(this.handleGetCurrentHeatingCoolingState.bind(this));
 
     this.thermostatService.getCharacteristic(hap.Characteristic.TargetHeatingCoolingState)
       .onGet(this.handleGetTargetHeatingCoolingState.bind(this))
@@ -123,8 +123,10 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
   /**
    * Handle requests to get the current value of the "Current Heating Cooling State" characteristic
+   *
+   * This is the mode that the thermostat is currently in (e.g. heat, cool, off) only (not auto)
    */
-  async handleGetHeatingCoolingState(): Promise<CharacteristicValue> {
+  async handleGetCurrentHeatingCoolingState(): Promise<CharacteristicValue> {
     this.log('Triggered GET CurrentHeatingCoolingState');
 
     const [
@@ -141,22 +143,40 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     switch(currentMode) {
       case Mode.COOL:
+      case Mode.ECO:
         return hap.Characteristic.CurrentHeatingCoolingState.COOL;
       case Mode.FAN:
         return hap.Characteristic.CurrentHeatingCoolingState.HEAT;
     }
-
-    // Fallback to OFF
-    return hap.Characteristic.CurrentHeatingCoolingState.OFF;
   }
 
   /**
    * Handle requests to get the current value of the "Target Heating Cooling State" characteristic
+   *
+   * This is the mode that the user set the thermostat to (e.g. heat, cool, auto, off)
    */
-  handleGetTargetHeatingCoolingState(): Promise<CharacteristicValue> {
+  async handleGetTargetHeatingCoolingState(): Promise<CharacteristicValue> {
     this.log('Triggered GET TargetHeatingCoolingState');
+    const [
+      currentPowerState,
+      currentMode,
+    ] = await Promise.all([
+      this.windmill.getPower(),
+      this.windmill.getMode(),
+    ]);
 
-    return this.handleGetHeatingCoolingState();
+    if(!currentPowerState) {
+      return hap.Characteristic.TargetHeatingCoolingState.OFF;
+    }
+
+    switch(currentMode) {
+      case Mode.COOL:
+        return hap.Characteristic.TargetHeatingCoolingState.COOL;
+      case Mode.FAN:
+        return hap.Characteristic.TargetHeatingCoolingState.HEAT;
+      case Mode.ECO:
+        return hap.Characteristic.TargetHeatingCoolingState.AUTO;
+    }
   }
 
   /**
