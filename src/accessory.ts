@@ -104,11 +104,6 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
       .onSet(this.handleSetFanActive.bind(this));
 
     this.fanService.getCharacteristic(hap.Characteristic.RotationSpeed)
-      .setProps({
-        minValue: 0,
-        maxValue: 3,
-        minStep: 1,
-      })
       .onGet(this.handleGetFanRotationSpeed.bind(this))
       .onSet(this.handleSetFanRotationSpeed.bind(this));
   }
