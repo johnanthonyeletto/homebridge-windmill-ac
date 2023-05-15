@@ -12,7 +12,7 @@ The thermostat accessory allows you to control the air conditioner's mode and te
 | OFF          | Turns off the air conditioner |
 | HEAT         | Fan                           |
 | COOL         | Cool                          |
-| Auto         | Eco                           |
+| AUTO         | Eco                           |
 
 ### Fan
 The fan accessory allows you to control the fan speed on the air conditioner. HomeKit's 0-100 fan speeds are mapped to the Windmill Air Conditioner's fan speeds.
@@ -21,7 +21,7 @@ The fan accessory allows you to control the fan speed on the air conditioner. Ho
 |---------------|----------------|
 | 0             | Auto           |
 | 1 -> 33       | Low            |
-| 32 -> 66      | Medium         |
+| 34 -> 66      | Medium         |
 | 67 -> 100     | High           |
 
 ### Other Behavior
