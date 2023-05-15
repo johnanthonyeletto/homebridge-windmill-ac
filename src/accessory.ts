@@ -91,6 +91,11 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
       .onGet(this.handleGetCurrentTemperature.bind(this));
 
     this.thermostatService.getCharacteristic(hap.Characteristic.TargetTemperature)
+      .setProps({
+        minValue: 60,
+        maxValue: 86,
+        minStep: 1,
+      })
       .onGet(this.handleGetTargetTemperature.bind(this))
       .onSet(this.handleSetTargetTemperature.bind(this));
 
