@@ -267,10 +267,20 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
   async handleGetFanActive(): Promise<CharacteristicValue> {
     this.log('Triggered GET FanActive');
 
-    const currentPowerState = await this.windmill.getFanSpeed();
+    const [
+      currentPowerState,
+      fanSpeed,
+    ] = await Promise.all([
+      this.windmill.getPower(),
+      this.windmill.getFanSpeed(),
+    ]);
 
     // If the fan is in AUTO mode, it is displayed as "off"
-    return currentPowerState !== FanSpeed.AUTO;
+    if(!currentPowerState || fanSpeed === FanSpeed.AUTO) {
+      return hap.Characteristic.Active.INACTIVE;
+    }
+
+    return hap.Characteristic.Active.ACTIVE;
   }
 
   async handleSetFanActive(value: CharacteristicValue) {
@@ -284,7 +294,17 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
   async handleGetFanRotationSpeed(): Promise<CharacteristicValue> {
     this.log('Triggered GET FanRotationSpeed');
-    const fanSpeed = await this.windmill.getFanSpeed();
+    const [
+      currentPowerState,
+      fanSpeed,
+    ] = await Promise.all([
+      this.windmill.getPower(),
+      this.windmill.getFanSpeed(),
+    ]);
+
+    if(!currentPowerState) {
+      return 0;
+    }
 
     switch(fanSpeed) {
       case FanSpeed.AUTO:
