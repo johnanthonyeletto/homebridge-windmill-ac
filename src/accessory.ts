@@ -103,6 +103,8 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
       .onGet(this.handleGetTemperatureDisplayUnits.bind(this))
       .onSet(this.handleSetTemperatureDisplayUnits.bind(this));
 
+    this.thermostatService.setPrimaryService(true);
+
     // Create handlers for fan characteristics
     this.fanService.getCharacteristic(hap.Characteristic.Active)
       .onGet(this.handleGetFanActive.bind(this))
