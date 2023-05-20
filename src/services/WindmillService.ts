@@ -44,52 +44,52 @@ export class WindmillService extends BlynkService {
   }
 
   public async getPower(): Promise<boolean> {
-    this.log('Getting power');
+    this.log.debug('Getting power');
     const value = await this.getPinValue(Pin.POWER);
-    this.log(`Power is ${value}`);
+    this.log.debug(`Power is ${value}`);
     return value === '1';
   }
 
   public async getCurrentTemperature(): Promise<number> {
-    this.log('Getting current temperature');
+    this.log.debug('Getting current temperature');
     const value = await this.getPinValue(Pin.CURRENT_TEMP);
-    this.log(`Current temperature is ${value}`);
+    this.log.debug(`Current temperature is ${value}`);
     return parseFloat(value);
   }
 
   public async getTargetTemperature(): Promise<number> {
-    this.log('Getting target temperature');
+    this.log.debug('Getting target temperature');
     const value = await this.getPinValue(Pin.TARGET_TEMP);
-    this.log(`Target temperature is ${value}`);
+    this.log.debug(`Target temperature is ${value}`);
     return parseFloat(value);
   }
 
   public async getMode(): Promise<Mode> {
-    this.log('Getting mode');
+    this.log.debug('Getting mode');
     const value = await this.getPinValue(Pin.MODE);
-    this.log(`Mode is ${value}`);
+    this.log.debug(`Mode is ${value}`);
     return value as Mode;
   }
 
   public async getFanSpeed(): Promise<FanSpeed> {
-    this.log('Getting fan speed');
+    this.log.debug('Getting fan speed');
     const value = await this.getPinValue(Pin.FAN);
-    this.log(`Fan speed is ${value}`);
+    this.log.debug(`Fan speed is ${value}`);
     return value as FanSpeed;
   }
 
   public async setPower(value: boolean): Promise<void> {
-    this.log(`Setting power to ${value}`);
+    this.log.debug(`Setting power to ${value}`);
     await this.setPinValue(Pin.POWER, value ? '1' : '0');
   }
 
   public async setTargetTemperature(value: number): Promise<void> {
-    this.log(`Setting target temperature to ${value}`);
+    this.log.debug(`Setting target temperature to ${value}`);
     await this.setPinValue(Pin.TARGET_TEMP, Math.round(value).toString());
   }
 
   public async setMode(value: Mode): Promise<void> {
-    this.log(`Setting mode to ${value}`);
+    this.log.debug(`Setting mode to ${value}`);
     switch (value) {
       case Mode.FAN:
         await this.setPinValue(Pin.MODE, ModeInt.FAN.toString());
@@ -104,7 +104,7 @@ export class WindmillService extends BlynkService {
   }
 
   public async setFanSpeed(value: FanSpeed): Promise<void> {
-    this.log(`Setting fan speed to ${value}`);
+    this.log.debug(`Setting fan speed to ${value}`);
     switch (value) {
       case FanSpeed.AUTO:
         await this.setPinValue(Pin.FAN, FanSpeedInt.AUTO.toString());
