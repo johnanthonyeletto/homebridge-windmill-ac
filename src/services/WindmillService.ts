@@ -85,7 +85,7 @@ export class WindmillService extends BlynkService {
 
   public async setTargetTemperature(value: number): Promise<void> {
     this.log(`Setting target temperature to ${value}`);
-    await this.setPinValue(Pin.TARGET_TEMP, value.toString());
+    await this.setPinValue(Pin.TARGET_TEMP, Math.round(value).toString());
   }
 
   public async setMode(value: Mode): Promise<void> {
