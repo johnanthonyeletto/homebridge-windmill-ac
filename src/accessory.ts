@@ -12,6 +12,9 @@ import { WindmillThermostatAccessoryConfig } from './types';
 import { FanSpeed, Mode, WindmillService } from './services/WindmillService';
 import { sleep } from './helpers/sleep';
 import { celsiusToFahrenheit, fahrenheitToCelsius } from './helpers/temperature';
+import { debounce } from './helpers/debounce';
+
+const SET_DEBOUNCE_TIME = 1000;
 
 /*
  * IMPORTANT NOTICE
@@ -84,7 +87,9 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     this.thermostatService.getCharacteristic(hap.Characteristic.TargetHeatingCoolingState)
       .onGet(this.handleGetTargetHeatingCoolingState.bind(this))
-      .onSet(this.handleSetTargetHeatingCoolingState.bind(this));
+      .onSet(
+        debounce(this.handleSetTargetHeatingCoolingState.bind(this), SET_DEBOUNCE_TIME),
+      );
 
     this.thermostatService.getCharacteristic(hap.Characteristic.CurrentTemperature)
       .onGet(this.handleGetCurrentTemperature.bind(this));
@@ -96,22 +101,30 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
         minStep: 1,
       })
       .onGet(this.handleGetTargetTemperature.bind(this))
-      .onSet(this.handleSetTargetTemperature.bind(this));
+      .onSet(
+        debounce(this.handleSetTargetTemperature.bind(this), SET_DEBOUNCE_TIME),
+      );
 
     this.thermostatService.getCharacteristic(hap.Characteristic.TemperatureDisplayUnits)
       .onGet(this.handleGetTemperatureDisplayUnits.bind(this))
-      .onSet(this.handleSetTemperatureDisplayUnits.bind(this));
+      .onSet(
+        debounce(this.handleSetTemperatureDisplayUnits.bind(this), SET_DEBOUNCE_TIME),
+      );
 
     // create a new Fan service
     this.fanService = new hap.Service.Fanv2();
 
     this.fanService.getCharacteristic(hap.Characteristic.Active)
       .onGet(this.handleGetFanActive.bind(this))
-      .onSet(this.handleSetFanActive.bind(this));
+      .onSet(
+        debounce(this.handleSetFanActive.bind(this), SET_DEBOUNCE_TIME),
+      );
 
     this.fanService.getCharacteristic(hap.Characteristic.RotationSpeed)
       .onGet(this.handleGetFanRotationSpeed.bind(this))
-      .onSet(this.handleSetFanRotationSpeed.bind(this));
+      .onSet(
+        debounce(this.handleSetFanRotationSpeed.bind(this), SET_DEBOUNCE_TIME),
+      );
 
 
     // Set the thermostat service as the primary service
