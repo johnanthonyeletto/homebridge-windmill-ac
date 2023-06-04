@@ -222,7 +222,6 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
         break;
     }
 
-    // Default to AUTO fan speed when changing modes
     await this.windmill.setFanSpeed(previousFanSpeed);
   }
 
