@@ -24,9 +24,6 @@ The fan accessory allows you to control the fan speed on the air conditioner. Ho
 | 34 -> 66      | Medium         |
 | 67 -> 100     | High           |
 
-### Other Behavior
-When the thermostat's mode is changed, the fan speed will be switched to Auto (0). The fan's speed can then be changed back from there.
-
 ## Configuration
 First, get your token from the Windmill dashboard.
 

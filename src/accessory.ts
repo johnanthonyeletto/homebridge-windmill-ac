@@ -200,11 +200,15 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
 
     if(value === hap.Characteristic.TargetHeatingCoolingState.OFF) {
       await this.windmill.setPower(false);
+      // Update the fan state to match the mode
+      await this.fanService.updateCharacteristic(hap.Characteristic.Active, false);
       return;
     } else {
       // If the mode is not off, we need to turn on the AC
       await this.windmill.setPower(true);
     }
+
+    const previousFanSpeed = await this.windmill.getFanSpeed();
 
     switch(value) {
       case hap.Characteristic.TargetHeatingCoolingState.COOL:
@@ -219,9 +223,7 @@ class WindmillThermostatAccessory implements AccessoryPlugin {
     }
 
     // Default to AUTO fan speed when changing modes
-    await this.windmill.setFanSpeed(FanSpeed.AUTO);
-    // Update the fan state to match the mode
-    await this.fanService.updateCharacteristic(hap.Characteristic.Active, false);
+    await this.windmill.setFanSpeed(previousFanSpeed);
   }
 
   /**
