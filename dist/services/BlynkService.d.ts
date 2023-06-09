@@ -20,7 +20,7 @@ export declare class BlynkService {
      * @param pin The virtual pin to get the value of (e.g. V1)
      * @returns The value of the pin
      */
-    protected getPinValue(pin: string): Promise<string | void>;
+    protected getPinValue(pin: string): Promise<string>;
     /**
      *
      * @param pin The virtual pin to set the value of (e.g. V1)

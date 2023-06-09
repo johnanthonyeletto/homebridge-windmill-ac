@@ -1,16 +1,22 @@
-import fetch from 'node-fetch';
-import PQueue from 'p-queue';
-import { URL } from 'url';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BlynkService = void 0;
+const node_fetch_1 = __importDefault(require("node-fetch"));
+const p_queue_1 = __importDefault(require("p-queue"));
+const url_1 = require("url");
 /**
  * Service class for interacting with Blynk API
  * See: https://docs.blynk.io/en/blynk.cloud/https-api-overview
  */
-export class BlynkService {
+class BlynkService {
     constructor({ serverAddress, token, log }) {
         this.logger = log;
         this.serverAddress = serverAddress;
         this.token = token;
-        this.queue = new PQueue({ concurrency: 1 });
+        this.queue = new p_queue_1.default({ concurrency: 1 });
         this.queue.on('active', () => {
             var _a;
             (_a = this.logger) === null || _a === void 0 ? void 0 : _a.debug(`[Blynk Queue] Size: ${this.queue.size} Pending: ${this.queue.pending}`);
@@ -24,10 +30,10 @@ export class BlynkService {
      */
     async getPinValue(pin) {
         return this.queue.add(async () => {
-            const url = new URL('/external/api/get', this.serverAddress);
+            const url = new url_1.URL('/external/api/get', this.serverAddress);
             url.searchParams.append('token', this.token);
             url.searchParams.append(pin, '');
-            const response = await fetch(url.toString());
+            const response = await (0, node_fetch_1.default)(url.toString());
             if (!response.ok) {
                 throw new Error(`Failed to get pin value for ${pin}`);
             }
@@ -43,10 +49,10 @@ export class BlynkService {
      */
     async setPinValue(pin, value) {
         this.queue.add(async () => {
-            const url = new URL('/external/api/update', this.serverAddress);
+            const url = new url_1.URL('/external/api/update', this.serverAddress);
             url.searchParams.append('token', this.token);
             url.searchParams.append(pin, value);
-            const response = await fetch(url.toString());
+            const response = await (0, node_fetch_1.default)(url.toString());
             if (!response.ok) {
                 throw new Error(`Failed to set pin value for ${pin}`);
             }
@@ -55,4 +61,5 @@ export class BlynkService {
         });
     }
 }
+exports.BlynkService = BlynkService;
 //# sourceMappingURL=BlynkService.js.map

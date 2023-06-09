@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2018", // ~node10
-    "module": "ES6",
+    "module": "commonjs",
     "lib": [
       "es2015",
       "es2016",
@@ -16,7 +16,6 @@
     "strict": true,
     "esModuleInterop": true,
     "noImplicitAny": false,
-    "moduleResolution": "node",
   },
   "include": [
     "src/"

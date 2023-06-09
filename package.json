@@ -28,7 +28,7 @@
   ],
   "dependencies": {
     "node-fetch": "^2.6.11",
-    "p-queue": "^7.3.4"
+    "p-queue": "^6.6.2"
   },
   "devDependencies": {
     "@types/node": "^16.10.9",
