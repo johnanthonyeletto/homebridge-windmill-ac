@@ -40,7 +40,7 @@ export enum FanSpeed {
 export class WindmillService extends BlynkService {
 
   constructor(token: string, private readonly log: Logging) {
-    super({ serverAddress: BASE_URL, token });
+    super({ serverAddress: BASE_URL, token, log });
   }
 
   public async getPower(): Promise<boolean> {

@@ -39,7 +39,7 @@ var FanSpeed;
 })(FanSpeed = exports.FanSpeed || (exports.FanSpeed = {}));
 class WindmillService extends BlynkService_1.BlynkService {
     constructor(token, log) {
-        super({ serverAddress: BASE_URL, token });
+        super({ serverAddress: BASE_URL, token, log });
         this.log = log;
     }
     async getPower() {
