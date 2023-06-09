@@ -5,6 +5,7 @@
   "version": "1.1.1",
   "description": "Control your Windmill AC with HomeKit and Siri",
   "license": "Apache-2.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/johnanthonyeletto/homebridge-windmill-ac.git"
