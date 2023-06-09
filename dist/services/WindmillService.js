@@ -1,28 +1,25 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.WindmillService = exports.FanSpeed = exports.Mode = exports.Pin = void 0;
-const BlynkService_1 = require("./BlynkService");
+import { BlynkService } from './BlynkService';
 const BASE_URL = 'https://dashboard.windmillair.com';
-var Pin;
+export var Pin;
 (function (Pin) {
     Pin["POWER"] = "V0";
     Pin["CURRENT_TEMP"] = "V1";
     Pin["TARGET_TEMP"] = "V2";
     Pin["MODE"] = "V3";
     Pin["FAN"] = "V4";
-})(Pin = exports.Pin || (exports.Pin = {}));
+})(Pin || (Pin = {}));
 var ModeInt;
 (function (ModeInt) {
     ModeInt[ModeInt["FAN"] = 0] = "FAN";
     ModeInt[ModeInt["COOL"] = 1] = "COOL";
     ModeInt[ModeInt["ECO"] = 2] = "ECO";
 })(ModeInt || (ModeInt = {}));
-var Mode;
+export var Mode;
 (function (Mode) {
     Mode["FAN"] = "Fan";
     Mode["COOL"] = "Cool";
     Mode["ECO"] = "Eco";
-})(Mode = exports.Mode || (exports.Mode = {}));
+})(Mode || (Mode = {}));
 var FanSpeedInt;
 (function (FanSpeedInt) {
     FanSpeedInt[FanSpeedInt["AUTO"] = 0] = "AUTO";
@@ -30,14 +27,14 @@ var FanSpeedInt;
     FanSpeedInt[FanSpeedInt["MEDIUM"] = 2] = "MEDIUM";
     FanSpeedInt[FanSpeedInt["HIGH"] = 3] = "HIGH";
 })(FanSpeedInt || (FanSpeedInt = {}));
-var FanSpeed;
+export var FanSpeed;
 (function (FanSpeed) {
     FanSpeed["AUTO"] = "Auto";
     FanSpeed["LOW"] = "Low";
     FanSpeed["MEDIUM"] = "Medium";
     FanSpeed["HIGH"] = "High";
-})(FanSpeed = exports.FanSpeed || (exports.FanSpeed = {}));
-class WindmillService extends BlynkService_1.BlynkService {
+})(FanSpeed || (FanSpeed = {}));
+export class WindmillService extends BlynkService {
     constructor(token, log) {
         super({ serverAddress: BASE_URL, token });
         this.log = log;
@@ -112,5 +109,4 @@ class WindmillService extends BlynkService_1.BlynkService {
         }
     }
 }
-exports.WindmillService = WindmillService;
 //# sourceMappingURL=WindmillService.js.map
