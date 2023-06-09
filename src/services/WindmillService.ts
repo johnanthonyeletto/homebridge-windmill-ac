@@ -54,14 +54,14 @@ export class WindmillService extends BlynkService {
     this.log.debug('Getting current temperature');
     const value = await this.getPinValue(Pin.CURRENT_TEMP);
     this.log.debug(`Current temperature is ${value}`);
-    return parseFloat(value);
+    return value ? parseFloat(value) : 0;
   }
 
   public async getTargetTemperature(): Promise<number> {
     this.log.debug('Getting target temperature');
     const value = await this.getPinValue(Pin.TARGET_TEMP);
     this.log.debug(`Target temperature is ${value}`);
-    return parseFloat(value);
+    return value ? parseFloat(value) : 0;
   }
 
   public async getMode(): Promise<Mode> {
